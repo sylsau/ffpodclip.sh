@@ -10,6 +10,7 @@ USAGE
 OPTIONS AND ARGUMENTS
         AUDIO_FILE      path to audio file (if more than 2 is provided, the last one is used)
         IMAGE_FILE      path to image file (if more than 2 is provided, the last one is used)
+                        NB: width and height of image file must be divisible by 2!
         OUTPUT_FILE     path to output file [default: /tmp/ffpodclip-out.mp4]
         CRF             quality of the output video (constant rate factor) [default: 18]
         SIZE            size of output video (WIDTHxHEIGHT) [default: (no change)]
