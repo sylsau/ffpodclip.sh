@@ -21,7 +21,7 @@ INFILE_AUDIO=
 OUTFILE_PREFIX=/tmp/ffpodclip-out
 OUTFILE_EXT=mp4
 OUTFILE=
-OVERWRITE=0
+OPT_OVERWRITE=0
 CRF=18
 SIZE_OPT=
 FF_OPTS="-c:v libx264 -framerate 1 -tune:v stillimage -preset:v veryfast -pix_fmt yuv420p -c:a copy"
@@ -99,7 +99,7 @@ else
                 shift
                 ;;
 	    "-y")
-                OVERWRITE=1
+                OPT_OVERWRITE=1
 		;;
             "-q")
 		# TODO: currently cannot disable CRF (for example with an encoder that does not support crf)
@@ -148,7 +148,7 @@ fi
 if [[ -z "$OUTFILE" ]]; then
 	OUTFILE="$OUTFILE_PREFIX.$OUTFILE_EXT"
 fi
-if [[ "$OVERWRITE" ]]; then
+if [[ "$OPT_OVERWRITE" ]]; then
 	FF_OPTS="$FF_OPTS -y"
 fi
 
