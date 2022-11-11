@@ -9,11 +9,6 @@ RES="$( stat -c %y $0 | cut -d" " -f1 )"
 readonly VERSION=${RES//-/}
 RES=
 
-# TODO
-# 	detect image resolution and fix uneven resolution width or height with
-# 	ffmpeg scale
-# 	MUST NOT clash with the use of -s: if -s used, do nothing; if -s not
-# 	used, crop it to nearest uneven
 
 FFMPEG="${FFMPEG:-ffmpeg}"
 INFILE_IMG=
@@ -54,7 +49,7 @@ USAGE
 OPTIONS AND ARGUMENTS
         AUDIO_FILE      path to audio file (if more than 2 is provided, the last one is used)
         IMAGE_FILE      path to image file (if more than 2 is provided, the last one is used)
-			NB: width and height of image file must be divisible by 2!
+                        NB: width and height of image file must be divisible by 2!
         OUTPUT_FILE     path to output file [default: $OUTFILE_PREFIX.$OUTFILE_EXT]
         CRF             quality of the output video (constant rate factor) [default: $CRF]
         SIZE            size of output video (WIDTHxHEIGHT) [default: (no change)]
@@ -81,7 +76,6 @@ EOF
 
 fn_need_cmd "ffmpeg"
 fn_need_cmd "mimetype"
-fn_need_cmd "bc"
 
 if test -z "$*"; then
     fn_help
@@ -157,20 +151,15 @@ DURATION=$(ffprobe -v error -i "$INFILE_AUDIO" -show_entries format=duration -of
 # fix w and h if not divisible by 2
 if [[ -z "$SIZE_OPT" ]]; then
 	RES=$(ffprobe -v error -i "$INFILE_IMG" -show_entries stream=width,height -of csv="p=0")
-	# TODO: not good because sometimes it might just change width or height, not both
-	SIZE_OPT="${RES/,/x}"
 	if [[ $(( $(cut -d, -f1 <<<"$RES") % 2 )) -ne 0 ]]; then
-		SIZE_OPT=${SIZE_OPT/W/$(( $(cut -d, -f1 <<<"$RES") - 1))}
+		RES="$(( $(cut -d, -f1 <<<"$RES") - 1)),$(cut -d, -f2 <<<"$RES")"
 	fi
 	if [[ $(( $(cut -d, -f2 <<<"$RES") % 2 )) -ne 0 ]]; then
-		SIZE_OPT=${SIZE_OPT/H/$(( $(cut -d, -f2 <<<"$RES") - 1))}
+		RES="$(cut -d, -f1 <<<"$RES"),$(( $(cut -d, -f2 <<<"$RES") - 1))"
+		#SIZE_OPT=${SIZE_OPT/H/$(( $(cut -d, -f2 <<<"$RES") - 1))}
 	fi
-	# if nothing changed, unset size 
-	if [[ "$SIZE_OPT" = "-s WxH" ]]; then
-		SIZE_OPT=
-	else
-		SIZE_OPT="-s $SIZE_OPT"
-	fi
+	SIZE_OPT="-s ${RES/,/x}"
+	fn_say "image was resized by 1 pixel (width and height need to be divisible by 2)"
 fi
 
 $FFMPEG -loop 1 -i "$INFILE_IMG" -i "$INFILE_AUDIO" -map 0:v -map 1:a $FF_OPTS -crf:v $CRF $SIZE_OPT -t $DURATION "$OUTFILE"
