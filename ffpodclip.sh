@@ -113,6 +113,7 @@ else
                 ;;
             *)
 		# TODO: error if more than 2 input files are given
+		# TODO: absolutely doable with ffprobe (-show_entries stream=codec_name) insted of mimetype (would reduce get rid of 1 dependency)
 		# get mimetype
 		RES=$(mimetype --output-format '%m' "$1")
 		if [[ "$RES" =~ ^image/ ]]; then
