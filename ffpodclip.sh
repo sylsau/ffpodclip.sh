@@ -20,6 +20,7 @@ OPT_OVERWRITE=0
 CRF=18
 SIZE_OPT=
 FF_OPTS="-c:v libx264 -framerate 1 -tune:v stillimage -preset:v veryfast -pix_fmt yuv420p -c:a copy"
+TWITTER_MODE=0
 
 
 # $1 = command to test (string)
@@ -44,7 +45,7 @@ REQUIREMENTS
         ffmpeg, mimetype, coreutils (stat, cut)
 
 USAGE
-        $PROGNAME AUDIO_FILE IMAGE_FILE [-o OUTPUT_FILE -q CRF -s SIZE --ff-opts "FF_OPTS" -y]
+        $PROGNAME AUDIO_FILE IMAGE_FILE [-o OUTPUT_FILE -q CRF -s SIZE --ff-opts "FF_OPTS" --twitter-mode -y]
 
 OPTIONS AND ARGUMENTS
         AUDIO_FILE      path to audio file (if more than 2 is provided, the last one is used)
@@ -55,6 +56,7 @@ OPTIONS AND ARGUMENTS
         SIZE            size of output video (WIDTHxHEIGHT) [default: (no change)]
         FF_OPTS         ffmpeg options to pass to the final command (use quotes) 
                         [default: "$FF_OPTS"]
+        --twitter-mode  add ffmpeg options for twitter compatibility; overwrite FF_OPTS
         -y              option to overwrite output file
 
 EXAMPLE
@@ -103,6 +105,9 @@ else
             "-s")
                 SIZE_OPT="-s $2"
                 shift
+                ;;
+            "--twitter-mode")
+                TWITTER_MODE=1
                 ;;
             "--ff-opts")
                 FF_OPTS="$2"
@@ -161,6 +166,10 @@ if [[ -z "$SIZE_OPT" ]]; then
 	fi
 	SIZE_OPT="-s ${RES/,/x}"
 	fn_say "image was resized by 1 pixel (width and height need to be divisible by 2)"
+fi
+# override FF_OPTS with twitter-compatible options
+if [[ $TWITTER_MODE -eq 1 ]]; then
+	FF_OPTS="-c:a aac -b:a 192k -ac 2 -ar 44100 -c:v libx264 -profile:v main -pix_fmt yuv420p"
 fi
 
 $FFMPEG -loop 1 -i "$INFILE_IMG" -i "$INFILE_AUDIO" -map 0:v -map 1:a $FF_OPTS -crf:v $CRF $SIZE_OPT -t $DURATION "$OUTFILE"
