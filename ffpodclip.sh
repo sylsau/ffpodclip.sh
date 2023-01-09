@@ -50,7 +50,8 @@ USAGE
 OPTIONS AND ARGUMENTS
         AUDIO_FILE      path to audio file (if more than 2 is provided, the last one is used)
         IMAGE_FILE      path to image file (if more than 2 is provided, the last one is used)
-                        NB: width and height of image file must be divisible by 2!
+                        NB: The image's width and height must be divisible by 2. If it is not
+			the case, the image will be resized by 1 pixel.
         OUTPUT_FILE     path to output file [default: $OUTFILE_PREFIX.$OUTFILE_EXT]
         CRF             quality of the output video (constant rate factor) [default: $CRF]
         SIZE            size of output video (WIDTHxHEIGHT) [default: (no change)]
