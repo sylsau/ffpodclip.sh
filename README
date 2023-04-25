@@ -1,28 +1,30 @@
-ffpodclip.sh v20221110
+ffpodclip.sh v20230425
         Takes an image and an audio track and creates a video from it.
 
 REQUIREMENTS
         ffmpeg, mimetype, coreutils (stat, cut)
 
 USAGE
-        ffpodclip.sh AUDIO_FILE IMAGE_FILE [-o OUTPUT_FILE -q CRF -s SIZE --ff-opts "FF_OPTS" -y]
+        ffpodclip.sh AUDIO_FILE IMAGE_FILE [-o OUTPUT_FILE -q CRF -s SIZE --ff-opts "FF_OPTS" --twitter-mode -y]
 
 OPTIONS AND ARGUMENTS
         AUDIO_FILE      path to audio file (if more than 2 is provided, the last one is used)
         IMAGE_FILE      path to image file (if more than 2 is provided, the last one is used)
                         NB: The image's width and height must be divisible by 2. If it is not
-                        the case, the image will be resized by 1 pixel.
+			the case, the image will be resized by 1 pixel.
         OUTPUT_FILE     path to output file [default: /tmp/ffpodclip-out.mp4]
         CRF             quality of the output video (constant rate factor) [default: 18]
-        SIZE            size of output video (WIDTHxHEIGHT) [default: (no change)]
+        SIZE            size of output video (WIDTHxHEIGHT) ; specifying -1 will use a value
+			that maintains the aspect ratio of the input image
+			[default: (no change)]
         FF_OPTS         ffmpeg options to pass to the final command (use quotes) 
-                        [default: "-c:v libx264 -framerate 1 -tune:v stillimage -preset:v veryfast -pix_fmt yuv420p -c:a copy"]
+                        [default: "-c:v libx264 -framerate 1 -tune:v stillimage -preset:v fast -pix_fmt yuv420p -c:a copy"]
+        --twitter-mode  add ffmpeg options for twitter compatibility; overwrite FF_OPTS
         -y              option to overwrite output file
 
 EXAMPLE
-        See Example/ directory for an example output.
         $ ffpodclip.sh example.png example.m4a -o out_example.mp4 -q 25
-        $ ffpodclip.sh me_talking.opus my_painting.png -o humble_video.mkv -q 21 -s 1200x800
+        $ ffpodclip.sh me_talking.opus my_painting.png -o humble_video.mkv -q 21 -s 1200x-1
         $ ffpodclip.sh pic.jpg audio.mp3 -q 15
 
 REFERENCES
