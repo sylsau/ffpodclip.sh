@@ -23,6 +23,7 @@ OPTIONS AND ARGUMENTS
         -y              option to overwrite output file
 
 EXAMPLE
+        See Example/ directory for an example output.
         $ ffpodclip.sh example.png example.m4a -o out_example.mp4 -q 25
         $ ffpodclip.sh me_talking.opus my_painting.png -o humble_video.mkv -q 21 -s 1200x-1
         $ ffpodclip.sh pic.jpg audio.mp3 -q 15
