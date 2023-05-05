@@ -17,6 +17,8 @@ FFMPEG="${FFMPEG:-ffmpeg}"
 FFPROBE="${FFPROBE:-ffprobe}"
 INFILE_IMG=
 INFILE_AUDIO=
+SS_OPT=
+T_OPT=
 OUTFILE_PREFIX=/tmp/ffpodclip-out
 OUTFILE_EXT=mp4
 OUTFILE=
@@ -49,7 +51,7 @@ REQUIREMENTS
         ffmpeg, mimetype, coreutils (stat, cut)
 
 USAGE
-        $PROGNAME AUDIO_FILE IMAGE_FILE [-o OUTPUT_FILE -q CRF -s SIZE --ff-opts "FF_OPTS" --twitter-mode -y]
+        $PROGNAME AUDIO_FILE IMAGE_FILE [-o OUTPUT_FILE -ss START_TIME -t DURATION -q CRF -s SIZE --ff-opts "FF_OPTS" --twitter-mode -y]
 
 OPTIONS AND ARGUMENTS
         AUDIO_FILE      path to audio file (if more than 2 is provided, the last one is used)
@@ -57,6 +59,8 @@ OPTIONS AND ARGUMENTS
                         NB: The image's width and height must be divisible by 2. If it is not
 			the case, the image will be resized by 1 pixel.
         OUTPUT_FILE     path to output file [default: $OUTFILE_PREFIX.$OUTFILE_EXT]
+	START_TIME 	start timestamp of the audio track (ffmpeg -ss option) [default: (unset)]
+	DURATION 	duration time of the audio track (ffmpeg -t option) [default: whole audio track]
         CRF             quality of the output video (constant rate factor) [default: $CRF]
         SIZE            size of output video (WIDTHxHEIGHT) ; specifying -1 will use a value
 			that maintains the aspect ratio of the input image
@@ -114,6 +118,14 @@ else
                 SIZE_OPT="$2"
                 shift
                 ;;
+	    "-ss")
+		SS_OPT="-ss $2"
+		shift
+		;;
+	    "-t")
+		T_OPT="-t $2"
+		shift
+		;;
             "--twitter-mode")
                 TWITTER_MODE=1
                 ;;
@@ -162,7 +174,13 @@ if [[ "$OPT_OVERWRITE" ]]; then
 	FF_OPTS="$FF_OPTS -y"
 fi
 
-DURATION=$($FFPROBE -v error -i "$INFILE_AUDIO" -show_entries format=duration -of csv="p=0")
+# duration check
+if [[ -z "$SS_OPT" ]]; then
+	T_OPT="-t $($FFPROBE -v error -i "$INFILE_AUDIO" -show_entries format=duration -of csv="p=0")"
+elif [[ -z "$T_OPT" ]]; then
+	fn_say "need start time and duration time !"
+	exit 40
+fi
 
 # if w or h of source image is not divisible by 2, fix it in the output
 if [[ -z "$SIZE_OPT" ]]; then
@@ -186,7 +204,7 @@ if [[ $TWITTER_MODE -eq 1 ]]; then
 	FF_OPTS="-c:v libx264 -framerate 1 -tune:v stillimage -preset:v medium -profile:v main -pix_fmt yuv420p -c:a aac -b:a 192k -ac 2 -ar 44100"
 fi
 
-$FFMPEG -loop 1 -i "$INFILE_IMG" -i "$INFILE_AUDIO" -map 0:v -map 1:a $FF_OPTS -crf:v $CRF $SIZE_OPT -t $DURATION $OUTFILE
+$FFMPEG -loop 1 -i "$INFILE_IMG" $SS_OPT -i "$INFILE_AUDIO" -map 0:v -map 1:a $FF_OPTS -crf:v $CRF $SIZE_OPT $T_OPT $OUTFILE
 
 fn_say "output to $OUTFILE"
 fn_say "all done!"
