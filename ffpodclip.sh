@@ -27,6 +27,7 @@ CRF=18
 SIZE_OPT=
 FF_OPTS="-c:v libx264 -framerate 1 -tune:v stillimage -preset:v fast -pix_fmt yuv420p -c:a copy"
 TWITTER_MODE=0
+FF_OPTS_TWITTER="-c:v libx264 -framerate 1 -tune:v stillimage -preset:v medium -profile:v high -pix_fmt yuv420p -c:a aac -b:a 192k -ac 2 -ar 44100"
 
 
 # $1 = command to test (string)
@@ -75,8 +76,18 @@ EXAMPLE
         $ $PROGNAME me_talking.opus my_painting.png -o humble_video.mkv -q 21 -s 1200x-1
         $ $PROGNAME pic.jpg audio.mp3 -q 15
 
+TWITTER "MEDIA BEST PRACTICES"
+        - Recommended Video Codec: H264 High Profile
+        - Recommended Frame Rates: 30 FPS, 60 FPS
+        - Recommended Video Resolution: 1280x720 (landscape), 720x1280 (portrait), 720x720 (square)
+	- Recommended Minimum Video Bitrate: 5,000 kbps
+        - Recommended Minimum Audio Bitrate: 128 kbps
+        - Recommended Audio Codec: AAC LC
+        - Recommended Aspect Ratio: 16:9 (landscape or portrait), 1:1 (square)
+
 REFERENCES
 	FFMPEG libx264 encoding guide: <https://trac.ffmpeg.org/wiki/Encode/H.264>
+	Twitter media best practices: <https://developer.twitter.com/en/docs/twitter-api/v1/media/upload-media/uploading-media/media-best-practices>
 
 AUTHOR
         Written by Sylvain Saubier
@@ -201,7 +212,7 @@ fi
 
 # override FF_OPTS with twitter-compatible options
 if [[ $TWITTER_MODE -eq 1 ]]; then
-	FF_OPTS="-c:v libx264 -framerate 1 -tune:v stillimage -preset:v medium -profile:v main -pix_fmt yuv420p -c:a aac -b:a 192k -ac 2 -ar 44100"
+	FF_OPTS="$FF_OPTS_TWITTER"
 fi
 
 $FFMPEG -loop 1 -i "$INFILE_IMG" $SS_OPT -i "$INFILE_AUDIO" -map 0:v -map 1:a $FF_OPTS -crf:v $CRF $SIZE_OPT $T_OPT $OUTFILE
