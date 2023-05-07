@@ -1,11 +1,11 @@
-ffpodclip.sh v20230425
+ffpodclip.sh v20230505
         Takes an image and an audio track and creates a video from it.
 
 REQUIREMENTS
         ffmpeg, mimetype, coreutils (stat, cut)
 
 USAGE
-        ffpodclip.sh AUDIO_FILE IMAGE_FILE [-o OUTPUT_FILE -q CRF -s SIZE --ff-opts "FF_OPTS" --twitter-mode -y]
+        ffpodclip.sh AUDIO_FILE IMAGE_FILE [-o OUTPUT_FILE -ss START_TIME -t DURATION -q CRF -s SIZE --ff-opts "FF_OPTS" --twitter-mode -y]
 
 OPTIONS AND ARGUMENTS
         AUDIO_FILE      path to audio file (if more than 2 is provided, the last one is used)
@@ -13,6 +13,8 @@ OPTIONS AND ARGUMENTS
                         NB: The image's width and height must be divisible by 2. If it is not
 			the case, the image will be resized by 1 pixel.
         OUTPUT_FILE     path to output file [default: /tmp/ffpodclip-out.mp4]
+	START_TIME 	start timestamp of the audio track (ffmpeg -ss option) [default: (unset)]
+	DURATION 	duration time of the audio track (ffmpeg -t option) [default: whole audio track]
         CRF             quality of the output video (constant rate factor) [default: 18]
         SIZE            size of output video (WIDTHxHEIGHT) ; specifying -1 will use a value
 			that maintains the aspect ratio of the input image
