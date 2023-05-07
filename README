@@ -1,4 +1,4 @@
-ffpodclip.sh v20230505
+ffpodclip.sh v20230507
         Takes an image and an audio track and creates a video from it.
 
 REQUIREMENTS
@@ -30,8 +30,18 @@ EXAMPLE
         $ ffpodclip.sh me_talking.opus my_painting.png -o humble_video.mkv -q 21 -s 1200x-1
         $ ffpodclip.sh pic.jpg audio.mp3 -q 15
 
+TWITTER "MEDIA BEST PRACTICES"
+        - Recommended Video Codec: H264 High Profile
+        - Recommended Frame Rates: 30 FPS, 60 FPS
+        - Recommended Video Resolution: 1280x720 (landscape), 720x1280 (portrait), 720x720 (square)
+	- Recommended Minimum Video Bitrate: 5,000 kbps
+        - Recommended Minimum Audio Bitrate: 128 kbps
+        - Recommended Audio Codec: AAC LC
+        - Recommended Aspect Ratio: 16:9 (landscape or portrait), 1:1 (square)
+
 REFERENCES
 	FFMPEG libx264 encoding guide: <https://trac.ffmpeg.org/wiki/Encode/H.264>
+	Twitter media best practices: <https://developer.twitter.com/en/docs/twitter-api/v1/media/upload-media/uploading-media/media-best-practices>
 
 AUTHOR
         Written by Sylvain Saubier
