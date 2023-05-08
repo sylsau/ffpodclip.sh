@@ -52,7 +52,7 @@ REQUIREMENTS
         ffmpeg, mimetype, coreutils (stat, cut)
 
 USAGE
-        $PROGNAME AUDIO_FILE IMAGE_FILE [-o OUTPUT_FILE -ss START_TIME -t DURATION -q CRF -s SIZE --ff-opts "FF_OPTS" --twitter-mode -y]
+        $PROGNAME AUDIO_FILE IMAGE_FILE [-o OUTPUT_FILE --ss START_TIME -t DURATION --crf CRF -s SIZE --ff-opts "FF_OPTS" --twitter-mode -y --dry-run]
 
 OPTIONS AND ARGUMENTS
         AUDIO_FILE      path to audio file (if more than 2 is provided, the last one is used)
@@ -70,11 +70,12 @@ OPTIONS AND ARGUMENTS
                         [default: "$FF_OPTS"]
         --twitter-mode  add ffmpeg options for twitter compatibility; overwrite FF_OPTS
         -y              option to overwrite output file
+        --dry-run       show the computed ffmpeg command with running it
 
 EXAMPLE
-        $ $PROGNAME example.png example.m4a -o out_example.mp4 -q 25
-        $ $PROGNAME me_talking.opus my_painting.png -o humble_video.mkv -q 21 -s 1200x-1
-        $ $PROGNAME pic.jpg audio.mp3 -q 15
+        $ $PROGNAME example.png example.m4a -o out_example.mp4 -crf 25
+        $ $PROGNAME me_talking.opus my_painting.png -o humble_video.mkv --crf 21 -s 1080x-1
+        $ $PROGNAME pic.jpg audio.mp3 --crf 15 -ss 65 -t 15 --dry-run
 
 TWITTER "MEDIA BEST PRACTICES"
         - Recommended Video Codec: H264 High Profile
@@ -120,7 +121,12 @@ else
 	    "-y")
                 OPT_OVERWRITE=1
 		;;
-            "-q")
+            "-crf")
+		# TODO: currently cannot disable CRF (for example with an encoder that does not support crf)
+                CRF="$2"
+                shift
+                ;;
+            "--crf")
 		# TODO: currently cannot disable CRF (for example with an encoder that does not support crf)
                 CRF="$2"
                 shift
@@ -130,6 +136,10 @@ else
                 shift
                 ;;
 	    "-ss")
+		SS_OPT="-ss $2"
+		shift
+		;;
+	    "--ss")
 		SS_OPT="-ss $2"
 		shift
 		;;
@@ -144,11 +154,12 @@ else
                 FF_OPTS="$2"
                 shift
                 ;;
-            "--debug")
+            "--dry-run")
                 DEBUG=1
                 ;;
             *)
 		# TODO: error if more than 2 input files are given
+		# TODO: should be done with ffprobe
 		RES=$(mimetype --output-format '%m' "$1")
 		if [[ "$RES" =~ ^image/ ]]; then
 			INFILE_IMG="$1"
