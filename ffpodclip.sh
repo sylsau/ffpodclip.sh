@@ -145,7 +145,7 @@ else
                 shift
                 ;;
             "--debug")
-                FFMPEG="echo $FFMPEG"
+                DEBUG=1
                 ;;
             *)
 		# TODO: error if more than 2 input files are given
@@ -167,10 +167,6 @@ else
         # Delete $1
         shift
     done
-fi
-
-if [[ -n "$DEBUG" ]] ; then
-	FFMPEG="echo $FFMPEG"
 fi
 
 if [[ -z "$INFILE_IMG" || -z "$INFILE_AUDIO" ]]; then
@@ -215,7 +211,11 @@ if [[ $TWITTER_MODE -eq 1 ]]; then
 	FF_OPTS="$FF_OPTS_TWITTER"
 fi
 
-$FFMPEG -loop 1 -i "$INFILE_IMG" $SS_OPT -i "$INFILE_AUDIO" -map 0:v -map 1:a $FF_OPTS -crf:v $CRF $SIZE_OPT $T_OPT $OUTFILE
+CMD=$FFMPEG -loop 1 -i "$INFILE_IMG" $SS_OPT -i "$INFILE_AUDIO" -map 0:v -map 1:a $FF_OPTS -crf:v $CRF $SIZE_OPT $T_OPT $OUTFILE
+fn_say "\nFFMPEG COMMAND\n\t${CMD}\n"
+if [[ -z "$DEBUG" ]]; then
+	$CMD
+fi
 
 fn_say "output to $OUTFILE"
 fn_say "all done!"
